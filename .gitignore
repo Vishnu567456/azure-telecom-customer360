@@ -1,0 +1,30 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Secrets / local configuration
+.env
+.env.*
+*.pem
+*.key
+*.pfx
+*.p12
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Databricks local state
+.databricks/
+.databricks/bundle/
