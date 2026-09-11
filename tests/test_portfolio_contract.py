@@ -18,6 +18,8 @@ class PortfolioContractTests(unittest.TestCase):
             ROOT / "src/03_streaming.py",
             ROOT / "src/04_gold.py",
             ROOT / "src/telecom_customer_360_revenue_intelligence.lvdash.json",
+            ROOT / "config/databricks.prod.example.yml",
+            ROOT / "docs/deployment.md",
         ]
         missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
         self.assertEqual(missing, [], f"Missing required project files: {missing}")
@@ -60,6 +62,15 @@ class PortfolioContractTests(unittest.TestCase):
         self.assertIn("dev:", text)
         self.assertIn("default: true", text)
         self.assertNotIn("mode: development", text)
+        self.assertNotIn("prod:", text)
+
+    def test_production_template_is_non_active(self):
+        prod = (ROOT / "config/databricks.prod.example.yml").read_text()
+        root = (ROOT / "databricks.yml").read_text()
+        self.assertIn("prod:", prod)
+        self.assertIn("mode: production", prod)
+        self.assertIn("REPLACE-WITH-PRODUCTION-WORKSPACE", prod)
+        self.assertNotIn("config/databricks.prod.example.yml", root)
 
     def test_migration_diagnostics_are_ignored(self):
         text = (ROOT / ".gitignore").read_text()
