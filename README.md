@@ -1,6 +1,8 @@
 # Enterprise Telecom Customer 360 & Revenue Intelligence Platform
 
-An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, and AI/BI analytics.
+[![CI](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml/badge.svg)](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml)
+
+An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, Databricks Declarative Automation Bundles, and automated CI validation.
 
 > **Data safety:** All customer, subscription, billing, usage, and digital-event data used in this repository is synthetic. No employer, client, or production data is included.
 
@@ -43,6 +45,9 @@ flowchart LR
 - Unity Catalog Metric Views
 - AI/BI Dashboards
 - Databricks System Tables
+- Databricks Declarative Automation Bundles
+- GitHub Actions
+- Python `unittest`
 
 ## Medallion Architecture
 
@@ -212,18 +217,64 @@ The final synthetic validation produced:
 | Monthly recurring revenue | 1698 |
 | Average active monthly fee | 849 |
 
+## Deployment and Quality Engineering
+
+The existing Databricks pipeline, runner job, and dashboard were brought under Declarative Automation Bundle management by binding the live resources before deployment.
+
+The controlled deployment was reviewed first and completed with:
+
+- 0 resources created
+- 2 existing resources updated
+- 0 resources deleted
+- 1 resource unchanged
+- post-deployment plan: 3 resources unchanged
+
+The deployment does not automatically execute the data pipeline.
+
+GitHub Actions performs no-compute CI checks on every relevant push / pull request:
+
+- Python source compilation
+- repository contract tests
+- bundle source-file presence checks
+- serverless / manual-run cost guardrails
+- job concurrency and no-schedule checks
+- dashboard JSON validation
+- safe separation of the inactive production template
+
+A production-style target template is provided in `config/databricks.prod.example.yml`. It is intentionally not included by the active root bundle, preventing accidental production deployment from this public portfolio repository. See `docs/deployment.md`.
+
 ## Repository Structure
 
 ```text
 azure-telecom-customer360/
+├── .github/
+│   └── workflows/
+│       └── ci.yml
+├── config/
+│   └── databricks.prod.example.yml
 ├── dashboard/
 │   └── telecom_customer360.lvdash.json
+├── docs/
+│   └── deployment.md
 ├── pipeline/
 │   ├── 01_bronze.py
 │   ├── 02_cdc.py
 │   ├── 03_streaming.py
 │   ├── 04_gold.py
 │   └── 05_file_events_probe.py
+├── resources/
+│   ├── telecom_customer_360_revenue_intelligence.dashboard.yml
+│   ├── vishnu_telecom_customer360.pipeline.yml
+│   └── vishnu_telecom_customer360_runner.job.yml
+├── src/
+│   ├── 01_bronze.py
+│   ├── 02_cdc.py
+│   ├── 03_streaming.py
+│   ├── 04_gold.py
+│   └── telecom_customer_360_revenue_intelligence.lvdash.json
+├── tests/
+│   └── test_portfolio_contract.py
+├── databricks.yml
 ├── .gitignore
 └── README.md
 ```
@@ -253,11 +304,14 @@ azure-telecom-customer360/
 | Metric View | Implemented and tested |
 | AI/BI Dashboard | Implemented, tested, and published |
 | System-table cost monitoring | Implemented |
-| Declarative Automation Bundles | Planned |
-| CI/CD | Planned |
-| Automated tests | Planned |
+| Declarative Automation Bundles | Implemented, deployed, and verified |
+| Automated tests | Implemented and verified |
+| GitHub Actions CI | Implemented and verified |
+| Production-style bundle configuration | Implemented; not deployed by design |
+| Automated GitHub-to-Databricks CD | Not enabled in public portfolio; local bundle deployment verified |
 | Azure Event Hubs live ingestion | Optional future extension |
 | Genie | Optional future extension |
+| Open Sharing / Delta Sharing extension | Optional future extension |
 
 ## Design Principles
 
@@ -271,6 +325,9 @@ The project follows production-oriented engineering practices:
 - Event-time correctness for streaming
 - Centralized governance and lineage
 - Reusable semantic metrics
+- Infrastructure / deployment configuration under source control
+- Automated no-compute CI validation
+- Safe dev / production deployment boundaries
 - Cost-aware serverless execution
 - Synthetic data for safe portfolio demonstration
 
