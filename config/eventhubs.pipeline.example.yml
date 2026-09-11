@@ -1,0 +1,20 @@
+resources:
+  pipelines:
+    vishnu_telecom_eventhubs_realtime:
+      name: vishnu-telecom-eventhubs-realtime
+      serverless: true
+      continuous: false
+      catalog: vishnu_telecom
+      schema: bronze
+      libraries:
+        - notebook:
+            path: ../realtime/01_eventhubs_ingest.py
+      configuration:
+        telecom.eventhubs.namespace: REPLACE_WITH_EVENT_HUBS_NAMESPACE
+        telecom.eventhubs.name: usage-realtime
+        telecom.eventhubs.service_credential: telecom_eventhubs_credential
+      tags:
+        project: azure-telecom-customer360
+        environment: dev
+        source: azure-event-hubs
+        cost-control: manual-runs-only
