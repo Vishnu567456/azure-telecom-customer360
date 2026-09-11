@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml/badge.svg)](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml)
 
-An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, Databricks Declarative Automation Bundles, and automated CI validation.
+An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental batch ingestion, Azure Event Hubs realtime ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, Databricks Declarative Automation Bundles, and automated CI validation.
 
 > **Data safety:** All customer, subscription, billing, usage, and digital-event data used in this repository is synthetic. No employer, client, or production data is included.
 
@@ -10,10 +10,15 @@ An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environ
 
 ```mermaid
 flowchart LR
-    A[Telecom Source Data] --> B[ADLS Gen2]
+    A[Telecom Batch / File Sources] --> B[ADLS Gen2]
     B --> C[Auto Loader]
     C --> D[Bronze Delta Tables]
+
+    EH[Azure Event Hubs] --> EK[Kafka-compatible endpoint]
+    EK --> ER[Realtime Bronze]
+
     D --> E[Lakeflow Declarative Pipelines]
+    ER --> E
     E --> F[Silver Layer]
     F --> G[SCD Type 1]
     F --> H[SCD Type 2]
@@ -34,6 +39,7 @@ flowchart LR
 
 - Microsoft Azure
 - Azure Data Lake Storage Gen2
+- Azure Event Hubs
 - Azure Databricks
 - Apache Spark / PySpark
 - Delta Lake
@@ -53,7 +59,7 @@ flowchart LR
 
 ### Bronze
 
-Raw telecom data is incrementally ingested into Delta streaming tables using Auto Loader.
+Raw telecom data is incrementally ingested into Delta streaming tables using Auto Loader. A separate realtime path ingests synthetic usage events from Azure Event Hubs through its Kafka-compatible endpoint.
 
 Implemented source domains include:
 
@@ -67,7 +73,7 @@ Implemented source domains include:
 - Regions
 - Cell towers
 
-The ingestion layer includes explicit schemas, rescued-data handling, metadata capture, incremental file processing, and Delta Change Data Feed where required.
+The ingestion layer includes explicit schemas, rescued-data handling, metadata capture, incremental file processing, realtime Kafka ingestion, and Delta Change Data Feed where required.
 
 ### Silver
 
@@ -87,6 +93,7 @@ Key capabilities:
 - Duplicate-event handling
 - Semi-structured VARIANT processing
 - Nested JSON extraction
+- Realtime Event Hubs validation and deduplication
 
 ### Gold
 
@@ -96,8 +103,9 @@ Curated analytical data products include:
 - `billing_summary`
 - `usage_5m`
 - `usage_by_region`
+- `usage_realtime_5m`
 
-The `customer_360` data product combines customer, subscription, plan, and commercial attributes for downstream analytics.
+The `customer_360` data product combines customer, subscription, plan, and commercial attributes for downstream analytics. Realtime usage events are aggregated into five-minute event-time windows.
 
 ## CDC and SCD Validation
 
@@ -132,6 +140,27 @@ Usage-event processing demonstrates event-time streaming concepts using:
 
 A deliberately late usage event was excluded while a valid later event was processed successfully.
 
+## Azure Event Hubs Realtime Ingestion
+
+A dedicated realtime Lakeflow pipeline was implemented and tested against Azure Event Hubs Standard using the Kafka-compatible endpoint.
+
+Authentication is passwordless: Databricks uses a Unity Catalog `SERVICE` credential backed by the existing Azure Databricks Access Connector managed identity. No Event Hubs SAS key or connection string is stored in the repository.
+
+The controlled test published valid DATA, VOICE, and SMS events, a deliberate duplicate, and an invalid event. A later event was then used to advance the event-time watermark so the original Gold window could close.
+
+Final Azure verification produced:
+
+| Realtime check | Actual | Expected | Result |
+|---|---:|---:|---|
+| Bronze rows | 7 | 7 | PASS |
+| Silver rows | 5 | 5 | PASS |
+| RT003 after deduplication | 1 | 1 | PASS |
+| Invalid RT_BAD in quarantine | 1 | 1 | PASS |
+| Closed Gold windows | 3 | 3 | PASS |
+| Original Gold event count | 4 | 4 | PASS |
+
+After verification, the serverless SQL warehouse was stopped and the temporary Event Hubs namespace was deleted to prevent ongoing cost. Reproducible source and helper scripts remain in this repository. See `docs/eventhubs-verification.md`.
+
 ## Managed Auto Loader File Events
 
 Managed file events were tested independently from the main pipeline to avoid coupling experimental event-notification behavior to the core workload.
@@ -156,6 +185,7 @@ Examples include:
 - Subscription validation
 - Usage-event validation
 - Digital-event validation
+- Realtime Event Hubs usage validation
 
 ## Semi-Structured Data with VARIANT
 
@@ -172,6 +202,7 @@ Implemented governance capabilities include:
 - Column-level PII tagging
 - ABAC column masking
 - Table and column lineage validation
+- Service credential for passwordless Azure Event Hubs access
 
 The customer email column is tagged as PII and masked through an ABAC policy. Downstream dashboard users see:
 
@@ -208,7 +239,7 @@ The dashboard queries the Metric View and governed Gold data while preserving AB
 
 ## Verified Business Results
 
-The final synthetic validation produced:
+The final synthetic batch/lakehouse validation produced:
 
 | Metric | Result |
 |---|---:|
@@ -240,6 +271,8 @@ GitHub Actions performs no-compute CI checks on every relevant push / pull reque
 - job concurrency and no-schedule checks
 - dashboard JSON validation
 - safe separation of the inactive production template
+- realtime Event Hubs source/config contract checks
+- secretless Event Hubs helper checks
 
 A production-style target template is provided in `config/databricks.prod.example.yml`. It is intentionally not included by the active root bundle, preventing accidental production deployment from this public portfolio repository. See `docs/deployment.md`.
 
@@ -251,17 +284,22 @@ azure-telecom-customer360/
 │   └── workflows/
 │       └── ci.yml
 ├── config/
-│   └── databricks.prod.example.yml
+│   ├── databricks.prod.example.yml
+│   └── eventhubs.pipeline.example.yml
 ├── dashboard/
 │   └── telecom_customer360.lvdash.json
 ├── docs/
-│   └── deployment.md
+│   ├── deployment.md
+│   ├── eventhubs-verification.md
+│   └── portfolio-guide.md
 ├── pipeline/
 │   ├── 01_bronze.py
 │   ├── 02_cdc.py
 │   ├── 03_streaming.py
 │   ├── 04_gold.py
 │   └── 05_file_events_probe.py
+├── realtime/
+│   └── 01_eventhubs_ingest.py
 ├── resources/
 │   ├── telecom_customer_360_revenue_intelligence.dashboard.yml
 │   ├── vishnu_telecom_customer360.pipeline.yml
@@ -274,6 +312,10 @@ azure-telecom-customer360/
 │   └── telecom_customer_360_revenue_intelligence.lvdash.json
 ├── tests/
 │   └── test_portfolio_contract.py
+├── tools/
+│   ├── build_eventhubs_pipeline_spec.py
+│   ├── send_eventhubs_test.py
+│   └── send_eventhubs_watermark.py
 ├── databricks.yml
 ├── .gitignore
 └── README.md
@@ -308,10 +350,10 @@ azure-telecom-customer360/
 | Automated tests | Implemented and verified |
 | GitHub Actions CI | Implemented and verified |
 | Production-style bundle configuration | Implemented; not deployed by design |
+| Azure Event Hubs live ingestion | Implemented, tested, and Azure-verified |
 | Automated GitHub-to-Databricks CD | Not enabled in public portfolio; local bundle deployment verified |
-| Azure Event Hubs live ingestion | Optional future extension |
-| Genie | Optional future extension |
-| Open Sharing / Delta Sharing extension | Optional future extension |
+| Genie | Remaining extension |
+| Open Sharing / Delta Sharing extension | Remaining extension |
 
 ## Design Principles
 
@@ -324,6 +366,7 @@ The project follows production-oriented engineering practices:
 - Historical change tracking
 - Event-time correctness for streaming
 - Centralized governance and lineage
+- Passwordless managed-identity access to Azure services
 - Reusable semantic metrics
 - Infrastructure / deployment configuration under source control
 - Automated no-compute CI validation
