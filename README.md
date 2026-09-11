@@ -8,6 +8,14 @@ An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environ
 
 ## Architecture
 
+<p align="center">
+  <img src="docs/architecture.svg" alt="Enterprise Telecom Real-Time Customer 360 and Revenue Intelligence Platform architecture" width="100%">
+</p>
+
+The architecture combines batch and realtime telecom ingestion, a governed Databricks medallion lakehouse, semantic analytics, external sharing, and secretless GitHub-to-Databricks deployment.
+
+### Logical Flow
+
 ```mermaid
 flowchart LR
     A[Telecom Batch / File Sources] --> B[ADLS Gen2]
@@ -332,6 +340,7 @@ azure-telecom-customer360/
 ├── dashboard/
 │   └── telecom_customer360.lvdash.json
 ├── docs/
+│   ├── architecture.svg
 │   ├── cd-verification.md
 │   ├── deployment.md
 │   ├── eventhubs-verification.md
