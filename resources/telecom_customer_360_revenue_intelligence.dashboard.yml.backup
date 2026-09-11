@@ -1,6 +1,0 @@
-resources:
-  dashboards:
-    telecom_customer_360_revenue_intelligence:
-      display_name: "Telecom Customer 360 & Revenue Intelligence"
-      warehouse_id: 102cdd31ef6c3de7
-      file_path: ../src/telecom_customer_360_revenue_intelligence.lvdash.json
