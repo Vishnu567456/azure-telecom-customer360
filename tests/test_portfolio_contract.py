@@ -19,13 +19,24 @@ class PortfolioContractTests(unittest.TestCase):
             ROOT / "src/04_gold.py",
             ROOT / "src/telecom_customer_360_revenue_intelligence.lvdash.json",
             ROOT / "config/databricks.prod.example.yml",
+            ROOT / "config/eventhubs.pipeline.example.yml",
             ROOT / "docs/deployment.md",
+            ROOT / "docs/eventhubs-verification.md",
+            ROOT / "realtime/01_eventhubs_ingest.py",
+            ROOT / "tools/build_eventhubs_pipeline_spec.py",
+            ROOT / "tools/send_eventhubs_test.py",
+            ROOT / "tools/send_eventhubs_watermark.py",
         ]
         missing = [str(path.relative_to(ROOT)) for path in required if not path.exists()]
         self.assertEqual(missing, [], f"Missing required project files: {missing}")
 
     def test_python_sources_compile(self):
-        for folder in (ROOT / "src", ROOT / "pipeline"):
+        for folder in (
+            ROOT / "src",
+            ROOT / "pipeline",
+            ROOT / "realtime",
+            ROOT / "tools",
+        ):
             for path in sorted(folder.glob("*.py")):
                 py_compile.compile(str(path), doraise=True)
 
@@ -71,6 +82,40 @@ class PortfolioContractTests(unittest.TestCase):
         self.assertIn("mode: production", prod)
         self.assertIn("REPLACE-WITH-PRODUCTION-WORKSPACE", prod)
         self.assertNotIn("config/databricks.prod.example.yml", root)
+
+    def test_eventhubs_realtime_contract(self):
+        source = (ROOT / "realtime/01_eventhubs_ingest.py").read_text()
+        template = (ROOT / "config/eventhubs.pipeline.example.yml").read_text()
+
+        self.assertIn('.format("kafka")', source)
+        self.assertIn('"databricks.serviceCredential"', source)
+        self.assertIn('withWatermark("event_time", "10 minutes")', source)
+        self.assertIn('dropDuplicatesWithinWatermark(["event_id"])', source)
+        self.assertIn("usage_eventhub_quarantine", source)
+        self.assertIn("usage_realtime_5m", source)
+
+        self.assertIn("serverless: true", template)
+        self.assertIn("continuous: false", template)
+        self.assertIn("telecom_eventhubs_credential", template)
+        self.assertIn("cost-control: manual-runs-only", template)
+
+    def test_eventhubs_helpers_are_secretless(self):
+        paths = [
+            ROOT / "realtime/01_eventhubs_ingest.py",
+            ROOT / "tools/send_eventhubs_test.py",
+            ROOT / "tools/send_eventhubs_watermark.py",
+            ROOT / "config/eventhubs.pipeline.example.yml",
+        ]
+        text = "\n".join(path.read_text() for path in paths).lower()
+
+        forbidden = [
+            "sharedaccesskey=",
+            "sharedaccesskeyname=",
+            "endpoint=sb://",
+            "connectionstring",
+        ]
+        for token in forbidden:
+            self.assertNotIn(token, text)
 
     def test_migration_diagnostics_are_ignored(self):
         text = (ROOT / ".gitignore").read_text()
