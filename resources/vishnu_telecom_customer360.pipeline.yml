@@ -1,0 +1,21 @@
+resources:
+  pipelines:
+    vishnu_telecom_customer360:
+      name: vishnu-telecom-customer360
+      libraries:
+        - notebook:
+            path: ../src/01_bronze.py
+        - notebook:
+            path: ../src/02_cdc.py
+        - notebook:
+            path: ../src/03_streaming.py
+        - notebook:
+            path: ../src/04_gold.py
+      catalog: vishnu_telecom
+      photon: true
+      schema: bronze
+      serverless: true
+      tags:
+        cost-control: manual-runs-only
+        environment: dev
+        project: azure-telecom-customer360

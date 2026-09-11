@@ -1,0 +1,15 @@
+resources:
+  jobs:
+    vishnu_telecom_customer360_runner:
+      name: vishnu-telecom-customer360-runner
+      performance_target: STANDARD
+      max_concurrent_runs: 1
+      queue:
+        enabled: true
+      tasks:
+        - task_key: refresh_telecom_lakehouse
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.vishnu_telecom_customer360.id}
+            full_refresh: false
+          timeout_seconds: 1800
+          max_retries: 0

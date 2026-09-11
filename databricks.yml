@@ -1,0 +1,11 @@
+bundle:
+  name: azure-telecom-customer360
+
+include:
+  - resources/*.yml
+
+targets:
+  dev:
+    default: true
+    workspace:
+      host: https://adb-7405606703639043.3.azuredatabricks.net

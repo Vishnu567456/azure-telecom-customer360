@@ -28,3 +28,6 @@ venv/
 # Databricks local state
 .databricks/
 .databricks/bundle/
+
+# Local migration / diagnostic output
+migration/

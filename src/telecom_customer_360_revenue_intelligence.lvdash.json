@@ -1,0 +1,481 @@
+{
+  "datasets": [
+    {
+      "catalog": "vishnu_telecom",
+      "displayName": "Customer 360 KPIs",
+      "name": "ds_kpis",
+      "queryLines": [
+        "SELECT MEASURE(customer_count) AS customers, MEASURE(active_subscribers) AS active_subscribers, MEASURE(monthly_recurring_revenue) AS monthly_revenue, MEASURE(avg_monthly_fee) AS avg_monthly_fee FROM customer_360_metrics"
+      ],
+      "schema": "gold"
+    },
+    {
+      "catalog": "vishnu_telecom",
+      "displayName": "Regional Performance",
+      "name": "ds_region",
+      "queryLines": [
+        "SELECT region, MEASURE(customer_count) AS customers, MEASURE(monthly_recurring_revenue) AS monthly_revenue FROM customer_360_metrics GROUP BY ALL ORDER BY monthly_revenue DESC"
+      ],
+      "schema": "gold"
+    },
+    {
+      "catalog": "vishnu_telecom",
+      "displayName": "Customer 360 Detail",
+      "name": "ds_customers",
+      "queryLines": [
+        "SELECT customer_id, customer_name, email, region, segment, subscription_status, plan_name, monthly_fee, data_gb FROM customer_360 ORDER BY customer_id"
+      ],
+      "schema": "gold"
+    }
+  ],
+  "pages": [
+    {
+      "displayName": "Executive Overview",
+      "layout": [
+        {
+          "position": {
+            "height": 1,
+            "width": 12,
+            "x": 0,
+            "y": 0
+          },
+          "widget": {
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Telecom Customer 360 & Revenue Intelligence"
+              ]
+            },
+            "name": "title"
+          }
+        },
+        {
+          "position": {
+            "height": 1,
+            "width": 12,
+            "x": 0,
+            "y": 1
+          },
+          "widget": {
+            "multilineTextboxSpec": {
+              "lines": [
+                "Executive customer, subscription and revenue analytics powered by Azure Databricks."
+              ]
+            },
+            "name": "subtitle"
+          }
+        },
+        {
+          "position": {
+            "height": 3,
+            "width": 3,
+            "x": 0,
+            "y": 2
+          },
+          "widget": {
+            "name": "total-customers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`customers`",
+                      "name": "customers"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Total Customers",
+                  "fieldName": "customers"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Total Customers"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 3,
+            "width": 3,
+            "x": 3,
+            "y": 2
+          },
+          "widget": {
+            "name": "active-subscribers",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`active_subscribers`",
+                      "name": "active_subscribers"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Active Subscribers",
+                  "fieldName": "active_subscribers"
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Active Subscribers"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 3,
+            "width": 3,
+            "x": 6,
+            "y": 2
+          },
+          "widget": {
+            "name": "monthly-revenue",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`monthly_revenue`",
+                      "name": "monthly_revenue"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Monthly Recurring Revenue",
+                  "fieldName": "monthly_revenue",
+                  "format": {
+                    "abbreviation": "compact",
+                    "currencyCode": "USD",
+                    "decimalPlaces": {
+                      "places": 2,
+                      "type": "max"
+                    },
+                    "type": "number-currency"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Monthly Recurring Revenue"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 3,
+            "width": 3,
+            "x": 9,
+            "y": 2
+          },
+          "widget": {
+            "name": "average-fee",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_kpis",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`avg_monthly_fee`",
+                      "name": "avg_monthly_fee"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "value": {
+                  "displayName": "Average Monthly Fee",
+                  "fieldName": "avg_monthly_fee",
+                  "format": {
+                    "abbreviation": "compact",
+                    "currencyCode": "USD",
+                    "decimalPlaces": {
+                      "places": 2,
+                      "type": "max"
+                    },
+                    "type": "number-currency"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Average Monthly Fee"
+              },
+              "version": 2,
+              "widgetType": "counter"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 5,
+            "width": 6,
+            "x": 0,
+            "y": 5
+          },
+          "widget": {
+            "name": "revenue-by-region",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_region",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`region`",
+                      "name": "region"
+                    },
+                    {
+                      "expression": "`monthly_revenue`",
+                      "name": "monthly_revenue"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "x": {
+                  "displayName": "Region",
+                  "fieldName": "region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Monthly Revenue",
+                  "fieldName": "monthly_revenue",
+                  "format": {
+                    "currencyCode": "USD",
+                    "type": "number-currency"
+                  },
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Monthly Revenue by Region"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 5,
+            "width": 6,
+            "x": 6,
+            "y": 5
+          },
+          "widget": {
+            "name": "customers-by-region",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_region",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`region`",
+                      "name": "region"
+                    },
+                    {
+                      "expression": "`customers`",
+                      "name": "customers"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "x": {
+                  "displayName": "Region",
+                  "fieldName": "region",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "displayName": "Customers",
+                  "fieldName": "customers",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Customers by Region"
+              },
+              "version": 3,
+              "widgetType": "bar"
+            }
+          }
+        },
+        {
+          "position": {
+            "height": 6,
+            "width": 12,
+            "x": 0,
+            "y": 10
+          },
+          "widget": {
+            "name": "customer-detail",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_customers",
+                  "disaggregated": true,
+                  "fields": [
+                    {
+                      "expression": "`customer_id`",
+                      "name": "customer_id"
+                    },
+                    {
+                      "expression": "`customer_name`",
+                      "name": "customer_name"
+                    },
+                    {
+                      "expression": "`email`",
+                      "name": "email"
+                    },
+                    {
+                      "expression": "`region`",
+                      "name": "region"
+                    },
+                    {
+                      "expression": "`segment`",
+                      "name": "segment"
+                    },
+                    {
+                      "expression": "`subscription_status`",
+                      "name": "subscription_status"
+                    },
+                    {
+                      "expression": "`plan_name`",
+                      "name": "plan_name"
+                    }
+                  ]
+                }
+              }
+            ],
+            "spec": {
+              "encodings": {
+                "columns": [
+                  {
+                    "displayName": "Customer ID",
+                    "fieldName": "customer_id"
+                  },
+                  {
+                    "displayName": "Customer",
+                    "fieldName": "customer_name"
+                  },
+                  {
+                    "displayName": "Masked Email",
+                    "fieldName": "email"
+                  },
+                  {
+                    "displayName": "Region",
+                    "fieldName": "region"
+                  },
+                  {
+                    "displayName": "Segment",
+                    "fieldName": "segment"
+                  },
+                  {
+                    "displayName": "Status",
+                    "fieldName": "subscription_status"
+                  },
+                  {
+                    "displayName": "Plan",
+                    "fieldName": "plan_name"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Customer 360 Detail"
+              },
+              "version": 2,
+              "widgetType": "table"
+            }
+          }
+        }
+      ],
+      "layoutVersion": "GRID_V1",
+      "name": "executive-overview",
+      "pageType": "PAGE_TYPE_CANVAS"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "dark": "#1F272D",
+        "light": "#FCFCFC"
+      },
+      "fontColor": {
+        "dark": "#E8ECF0",
+        "light": "#11171C"
+      },
+      "selectionColor": {
+        "dark": "#8ACAFF",
+        "light": "#2272B4"
+      },
+      "visualizationColors": [
+        "#0072B2",
+        "#E69F00",
+        "#009E73",
+        "#CC79A7",
+        "#D55E00"
+      ],
+      "widgetBackgroundColor": {
+        "dark": "#11171C",
+        "light": "#FFFFFF"
+      },
+      "widgetHeaderAlignment": "LEFT"
+    }
+  }
+}
