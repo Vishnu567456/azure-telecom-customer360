@@ -1,0 +1,67 @@
+name: CD
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: databricks-dev-cd
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: databricks-dev
+
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: https://adb-7405606703639043.3.azuredatabricks.net
+      DATABRICKS_CLIENT_ID: b457d9c7-ad35-4163-b029-4f49c675ede1
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Databricks CLI
+        uses: databricks/setup-cli@main
+
+      - name: Verify federated Databricks identity
+        run: databricks current-user me -o json
+
+      - name: Validate bundle
+        run: databricks bundle validate -t dev
+
+      - name: Plan and enforce no-create/no-delete guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          databricks bundle plan -t dev | tee /tmp/bundle-plan.txt
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+
+          text = Path('/tmp/bundle-plan.txt').read_text()
+          match = re.search(r'Plan:\s+(\d+) to add,\s+(\d+) to change,\s+(\d+) to delete', text)
+          if not match:
+              raise SystemExit('Could not parse Databricks bundle plan summary')
+
+          add, change, delete = map(int, match.groups())
+          print(f'Parsed plan: add={add}, change={change}, delete={delete}')
+
+          if add != 0 or delete != 0:
+              raise SystemExit('Safety guard blocked deployment: additions or deletions detected')
+          PY
+
+      - name: Deploy bundle
+        run: databricks bundle deploy -t dev
+
+      - name: Verify post-deployment plan is clean
+        shell: bash
+        run: |
+          set -euo pipefail
+          databricks bundle plan -t dev | tee /tmp/bundle-post-plan.txt
+          grep -F 'Plan: 0 to add, 0 to change, 0 to delete' /tmp/bundle-post-plan.txt
