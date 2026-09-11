@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml/badge.svg)](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml)
 
-An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental batch ingestion, Azure Event Hubs realtime ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, OpenSharing / Delta Sharing, Databricks Declarative Automation Bundles, and automated CI validation.
+An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental batch ingestion, Azure Event Hubs realtime ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, Databricks Genie, OpenSharing / Delta Sharing, Declarative Automation Bundles, automated CI, and secretless GitHub-to-Databricks CD.
 
 > **Data safety:** All customer, subscription, billing, usage, and digital-event data used in this repository is synthetic. No employer, client, or production data is included.
 
@@ -31,11 +31,15 @@ flowchart LR
     K --> N[Unity Catalog Metric View]
     L --> N
     N --> O[AI/BI Dashboard]
+    N --> GN[Databricks Genie]
     P[Unity Catalog Governance] --> K
     P --> O
+    P --> GN
     K --> S[Sanitized Sharing Table]
     S --> OS[OpenSharing / Delta Sharing]
     OS --> EC[External OSS Delta Sharing Client]
+    GH[GitHub Actions OIDC] --> DAB[Declarative Automation Bundle]
+    DAB --> WS[Existing Databricks Resources]
 ```
 
 ## Technology Stack
@@ -53,10 +57,12 @@ flowchart LR
 - Lakeflow Jobs
 - Unity Catalog Metric Views
 - AI/BI Dashboards
+- Databricks Genie
 - OpenSharing / Delta Sharing
 - Databricks System Tables
 - Databricks Declarative Automation Bundles
 - GitHub Actions
+- GitHub OIDC workload identity federation
 - Python `unittest`
 
 ## Medallion Architecture
@@ -253,6 +259,21 @@ The published Databricks AI/BI dashboard **Telecom Customer 360 & Revenue Intell
 
 The dashboard queries the Metric View and governed Gold data while preserving ABAC masking.
 
+## Databricks Genie
+
+A Databricks Genie space named **Telecom Customer 360 Genie** was created over the governed Metric View and the sanitized Customer 360 detail table.
+
+Its configuration includes sample questions, source descriptions, instructions, and example Metric View SQL. A controlled natural-language test asked:
+
+`How many active subscribers are there and what is monthly recurring revenue?`
+
+Genie generated Metric View SQL and returned the verified answer:
+
+- Active subscribers: `2`
+- Monthly recurring revenue: `1698.0`
+
+The SQL warehouse was stopped immediately after verification. See `docs/genie-verification.md`.
+
 ## Verified Business Results
 
 The final synthetic batch/lakehouse validation produced:
@@ -268,15 +289,7 @@ The final synthetic batch/lakehouse validation produced:
 
 The existing Databricks pipeline, runner job, and dashboard were brought under Declarative Automation Bundle management by binding the live resources before deployment.
 
-The controlled deployment was reviewed first and completed with:
-
-- 0 resources created
-- 2 existing resources updated
-- 0 resources deleted
-- 1 resource unchanged
-- post-deployment plan: 3 resources unchanged
-
-The deployment does not automatically execute the data pipeline.
+The original controlled local deployment was reviewed first and completed without creating duplicate resources. The final deployment state is pinned explicitly to the existing development bundle path.
 
 GitHub Actions performs no-compute CI checks on every relevant push / pull request:
 
@@ -290,6 +303,18 @@ GitHub Actions performs no-compute CI checks on every relevant push / pull reque
 - realtime Event Hubs source/config contract checks
 - secretless Event Hubs helper checks
 - governance-safe OpenSharing verification-document checks
+- Genie configuration and verification checks
+- secretless CD workflow and deployment guardrail checks
+
+A separate manual `CD` workflow performs a real Databricks bundle deployment using a dedicated Databricks service principal and GitHub OIDC workload identity federation. It uses no Databricks PAT or client secret.
+
+The CD workflow enforces a pre-deployment no-create/no-delete guard and reuses the existing bundle state. The verified GitHub deployment completed with:
+
+- pre-plan: `0 to add, 0 to change, 0 to delete, 3 unchanged`
+- resources: `0 created, 0 changed, 0 deleted, 3 unchanged`
+- post-plan: `0 to add, 0 to change, 0 to delete, 3 unchanged`
+
+The CD workflow does not execute the data pipeline or start SQL compute. See `docs/cd-verification.md`.
 
 A production-style target template is provided in `config/databricks.prod.example.yml`. It is intentionally not included by the active root bundle, preventing accidental production deployment from this public portfolio repository. See `docs/deployment.md`.
 
@@ -299,15 +324,18 @@ A production-style target template is provided in `config/databricks.prod.exampl
 azure-telecom-customer360/
 ├── .github/
 │   └── workflows/
-│       └── ci.yml
+│       ├── ci.yml
+│       └── cd.yml
 ├── config/
 │   ├── databricks.prod.example.yml
 │   └── eventhubs.pipeline.example.yml
 ├── dashboard/
 │   └── telecom_customer360.lvdash.json
 ├── docs/
+│   ├── cd-verification.md
 │   ├── deployment.md
 │   ├── eventhubs-verification.md
+│   ├── genie-verification.md
 │   ├── opensharing-verification.md
 │   └── portfolio-guide.md
 ├── pipeline/
@@ -332,6 +360,7 @@ azure-telecom-customer360/
 │   └── test_portfolio_contract.py
 ├── tools/
 │   ├── build_eventhubs_pipeline_spec.py
+│   ├── build_genie_space_spec.py
 │   ├── send_eventhubs_test.py
 │   └── send_eventhubs_watermark.py
 ├── databricks.yml
@@ -363,15 +392,15 @@ azure-telecom-customer360/
 | Governed tags / ABAC masking | Implemented and tested |
 | Metric View | Implemented and tested |
 | AI/BI Dashboard | Implemented, tested, and published |
+| Databricks Genie | Implemented, tested, and Azure-verified |
 | System-table cost monitoring | Implemented |
 | Declarative Automation Bundles | Implemented, deployed, and verified |
 | Automated tests | Implemented and verified |
 | GitHub Actions CI | Implemented and verified |
+| GitHub-to-Databricks CD | Implemented and verified with secretless OIDC |
 | Production-style bundle configuration | Implemented; not deployed by design |
 | Azure Event Hubs live ingestion | Implemented, tested, and Azure-verified |
 | Open Sharing / Delta Sharing | Implemented, tested, and externally verified |
-| Automated GitHub-to-Databricks CD | Not enabled in public portfolio; local bundle deployment verified |
-| Genie | Remaining extension |
 
 ## Design Principles
 
@@ -386,9 +415,12 @@ The project follows production-oriented engineering practices:
 - Centralized governance and lineage
 - Passwordless managed-identity access to Azure services
 - Governance-safe external sharing without bypassing PII policies
+- Governed natural-language analytics through Genie
 - Reusable semantic metrics
 - Infrastructure / deployment configuration under source control
 - Automated no-compute CI validation
+- Secretless OIDC-based GitHub-to-Databricks deployment
+- No-create/no-delete CD safety guard
 - Safe dev / production deployment boundaries
 - Cost-aware serverless execution
 - Synthetic data for safe portfolio demonstration
