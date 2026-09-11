@@ -1,0 +1,15 @@
+# Production target template only.
+# This file is intentionally NOT included by the root databricks.yml, so it
+# cannot deploy anything unless an engineer explicitly promotes it into a
+# secured production configuration.
+
+targets:
+  prod:
+    mode: production
+    workspace:
+      host: https://REPLACE-WITH-PRODUCTION-WORKSPACE.azuredatabricks.net
+      root_path: /Workspace/Shared/.bundle/azure-telecom-customer360/prod
+
+    # Recommended for a real production rollout:
+    # run_as:
+    #   service_principal_name: REPLACE-WITH-SERVICE-PRINCIPAL-APPLICATION-ID
