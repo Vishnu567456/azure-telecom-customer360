@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Enterprise Telecom Real-Time Customer 360 &amp; Revenue Intelligence Platform</title>
+  <desc id="desc">End-to-end Azure Databricks architecture showing batch and realtime ingestion, medallion lakehouse layers, Unity Catalog governance, analytics, sharing, and GitHub OIDC CI/CD.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f8fbff"/><stop offset="1" stop-color="#eef5ff"/></linearGradient>
+    <linearGradient id="bronze" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff7ef"/><stop offset="1" stop-color="#fde4cc"/></linearGradient>
+    <linearGradient id="silver" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f8fafc"/><stop offset="1" stop-color="#e6ebf2"/></linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff9df"/><stop offset="1" stop-color="#fde9a9"/></linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%"><feDropShadow dx="0" dy="3" stdDeviation="6" flood-opacity="0.12"/></filter>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L0,6 L9,3 z" fill="#2575d9"/></marker>
+    <style>
+      .h1{font:700 34px Arial,sans-serif;fill:#0f2f63}.h2{font:700 22px Arial,sans-serif;fill:#123b73}.h3{font:700 18px Arial,sans-serif;fill:#1f2937}.t{font:500 14px Arial,sans-serif;fill:#334155}.s{font:500 12px Arial,sans-serif;fill:#536273}.tiny{font:600 11px Arial,sans-serif;fill:#536273}.box{rx:16;ry:16;stroke-width:1.5;filter:url(#shadow)}.pill{rx:11;ry:11;stroke-width:1}.arrow{stroke:#2575d9;stroke-width:3;fill:none;marker-end:url(#arrow)}
+    </style>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+
+  <text x="36" y="48" class="h1">Enterprise Telecom Real-Time Customer 360 &amp; Revenue Intelligence Platform</text>
+  <text x="36" y="76" class="t">Synthetic telecom lakehouse: batch + realtime ingestion, CDC/SCD, streaming, governance, analytics, sharing and secretless CI/CD</text>
+
+  <rect x="28" y="98" width="1544" height="96" class="box" fill="#ffffff" stroke="#7cb5ff"/>
+  <text x="48" y="130" class="h2">Unity Catalog Governance</text>
+  <text x="48" y="155" class="s">Secure • Govern • Discover • Share</text>
+  <g>
+    <rect x="300" y="116" width="210" height="56" class="pill" fill="#f3edff" stroke="#a78bfa"/><text x="330" y="139" class="h3">Catalogs / Schemas</text><text x="353" y="159" class="s">Volumes &amp; tables</text>
+    <rect x="530" y="116" width="175" height="56" class="pill" fill="#edf6ff" stroke="#60a5fa"/><text x="586" y="149" class="h3">Lineage</text>
+    <rect x="725" y="116" width="190" height="56" class="pill" fill="#ecfdf5" stroke="#34d399"/><text x="768" y="149" class="h3">Governed Tags</text>
+    <rect x="935" y="116" width="190" height="56" class="pill" fill="#fff1f2" stroke="#fb7185"/><text x="972" y="149" class="h3">ABAC / PII Masking</text>
+    <rect x="1145" y="116" width="230" height="56" class="pill" fill="#fff7ed" stroke="#fb923c"/><text x="1182" y="139" class="h3">Credentials &amp;</text><text x="1174" y="159" class="s">External Locations</text>
+    <text x="1404" y="132" class="s">Governed data</text><text x="1404" y="151" class="s">Trusted insights</text><text x="1404" y="170" class="s">End to end</text>
+  </g>
+
+  <rect x="28" y="216" width="205" height="470" class="box" fill="#ffffff" stroke="#9cc8f7"/>
+  <text x="48" y="250" class="h2">Data Sources</text>
+  <text x="48" y="273" class="s">Batch + realtime</text>
+  <g class="t">
+    <rect x="46" y="292" width="168" height="38" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="316">Customers CDC</text>
+    <rect x="46" y="340" width="168" height="38" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="364">Subscriptions CDC</text>
+    <rect x="46" y="388" width="168" height="38" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="412">Invoices</text>
+    <rect x="46" y="436" width="168" height="38" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="460">Payments</text>
+    <rect x="46" y="484" width="168" height="38" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="508">Usage Events</text>
+    <rect x="46" y="532" width="168" height="38" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="556">Digital Events</text>
+    <rect x="46" y="580" width="168" height="44" class="pill" fill="#f6faff" stroke="#a9c9ec"/><text x="66" y="599">Reference Data</text><text x="66" y="615" class="tiny">Regions • Plans • Towers</text>
+    <rect x="46" y="634" width="168" height="38" class="pill" fill="#ecfdf5" stroke="#6ee7b7"/><text x="66" y="658">Realtime App Events</text>
+  </g>
+
+  <rect x="252" y="216" width="230" height="470" class="box" fill="#ffffff" stroke="#8fd7d3"/>
+  <text x="272" y="250" class="h2">Azure Ingestion</text>
+  <text x="272" y="273" class="s">Storage &amp; streaming</text>
+  <rect x="278" y="300" width="178" height="150" class="box" fill="#edf7ff" stroke="#38a5f5"/>
+  <text x="322" y="338" class="h3">ADLS Gen2</text><text x="315" y="363" class="t">External Volume</text><text x="305" y="391" class="s">Parquet / JSON / CSV</text><text x="320" y="411" class="s">Batch landing zone</text>
+  <rect x="278" y="492" width="178" height="150" class="box" fill="#ecfdf5" stroke="#22c55e"/>
+  <text x="304" y="530" class="h3">Azure Event Hubs</text><text x="312" y="557" class="t">Realtime ingestion</text><text x="300" y="584" class="s">Kafka-compatible endpoint</text><text x="319" y="604" class="s">Low-latency events</text>
+
+  <rect x="502" y="216" width="245" height="470" class="box" fill="#ffffff" stroke="#f4a6a6"/>
+  <text x="522" y="250" class="h2">Databricks Ingestion</text>
+  <text x="522" y="273" class="s">Incremental + streaming</text>
+  <rect x="528" y="296" width="193" height="62" class="pill" fill="#fff1f2" stroke="#fb7185"/><text x="562" y="323" class="h3">Managed File Events</text><text x="567" y="344" class="tiny">File discovery trigger</text>
+  <rect x="528" y="375" width="193" height="86" class="pill" fill="#fff7ed" stroke="#fb923c"/><text x="577" y="406" class="h3">Auto Loader</text><text x="550" y="431" class="s">Schema evolution • rescued data</text><text x="573" y="449" class="s">Incremental file ingestion</text>
+  <rect x="528" y="482" width="193" height="86" class="pill" fill="#ecfdf5" stroke="#34d399"/><text x="547" y="513" class="h3">Structured Streaming</text><text x="598" y="536" class="t">Kafka</text><text x="552" y="555" class="s">Realtime event processing</text>
+  <rect x="528" y="590" width="193" height="70" class="pill" fill="#f3edff" stroke="#a78bfa"/><text x="549" y="618" class="h3">Lakeflow Declarative</text><text x="580" y="641" class="h3">Pipelines</text>
+
+  <rect x="770" y="216" width="500" height="470" class="box" fill="#ffffff" stroke="#ef4444"/>
+  <text x="792" y="250" class="h2">Databricks Lakehouse — Medallion Architecture</text>
+  <text x="792" y="273" class="s">From raw telecom events to business-ready analytics</text>
+
+  <rect x="792" y="295" width="145" height="350" class="box" fill="url(#bronze)" stroke="#dc7b2f"/>
+  <text x="832" y="330" class="h2">Bronze</text><text x="811" y="352" class="s">Raw streaming tables</text>
+  <text x="810" y="386" class="t">customers_cdc</text><text x="810" y="410" class="t">subscriptions_cdc</text><text x="810" y="434" class="t">invoices</text><text x="810" y="458" class="t">payments</text><text x="810" y="482" class="t">usage_events</text><text x="810" y="506" class="t">digital_events</text>
+  <rect x="808" y="538" width="113" height="86" class="pill" fill="#fffaf5" stroke="#e8b98f"/><text x="821" y="561" class="tiny">Raw ingestion</text><text x="821" y="582" class="tiny">Schema evolution</text><text x="821" y="603" class="tiny">Rescued data</text>
+
+  <rect x="954" y="295" width="145" height="350" class="box" fill="url(#silver)" stroke="#94a3b8"/>
+  <text x="995" y="330" class="h2">Silver</text><text x="975" y="352" class="s">Clean + conformed</text>
+  <text x="971" y="382" class="tiny">customer_changes_valid</text><text x="971" y="404" class="tiny">subscription_changes_valid</text><text x="971" y="426" class="tiny">customer_current (SCD1)</text><text x="971" y="448" class="tiny">customer_history (SCD2)</text><text x="971" y="470" class="tiny">subscription_current</text><text x="971" y="492" class="tiny">invoices • payments</text><text x="971" y="514" class="tiny">usage • digital events</text>
+  <rect x="970" y="538" width="113" height="86" class="pill" fill="#f8fafc" stroke="#cbd5e1"/><text x="979" y="558" class="tiny">Expectations</text><text x="979" y="578" class="tiny">Quarantine</text><text x="979" y="598" class="tiny">VARIANT parsing</text><text x="979" y="618" class="tiny">Watermark + dedup</text>
+
+  <rect x="1116" y="295" width="132" height="350" class="box" fill="url(#gold)" stroke="#d6a313"/>
+  <text x="1154" y="330" class="h2">Gold</text><text x="1133" y="352" class="s">Curated outputs</text>
+  <rect x="1132" y="376" width="100" height="42" class="pill" fill="#fffdf2" stroke="#e6bf4f"/><text x="1144" y="402" class="t">customer_360</text>
+  <rect x="1132" y="429" width="100" height="42" class="pill" fill="#fffdf2" stroke="#e6bf4f"/><text x="1138" y="455" class="tiny">customer_360_metrics</text>
+  <rect x="1132" y="482" width="100" height="42" class="pill" fill="#fffdf2" stroke="#e6bf4f"/><text x="1144" y="508" class="t">billing_summary</text>
+  <rect x="1132" y="535" width="100" height="42" class="pill" fill="#fffdf2" stroke="#e6bf4f"/><text x="1150" y="561" class="t">usage_5m</text>
+  <rect x="1132" y="588" width="100" height="42" class="pill" fill="#fffdf2" stroke="#e6bf4f"/><text x="1140" y="614" class="tiny">usage_by_region</text>
+
+  <rect x="1292" y="216" width="280" height="470" class="box" fill="#ffffff" stroke="#73b7ff"/>
+  <text x="1312" y="250" class="h2">Consumption</text><text x="1312" y="273" class="s">Analytics, GenAI &amp; sharing</text>
+  <rect x="1318" y="302" width="112" height="92" class="box" fill="#edf6ff" stroke="#60a5fa"/><text x="1342" y="337" class="h3">AI/BI</text><text x="1337" y="361" class="h3">Dashboard</text><text x="1332" y="382" class="tiny">Interactive analytics</text>
+  <rect x="1442" y="302" width="104" height="92" class="box" fill="#f3edff" stroke="#a78bfa"/><text x="1471" y="342" class="h3">Genie</text><text x="1458" y="366" class="tiny">Natural-language</text><text x="1471" y="382" class="tiny">analytics</text>
+  <rect x="1318" y="423" width="228" height="98" class="box" fill="#ecfdf5" stroke="#34d399"/><text x="1355" y="458" class="h3">OpenSharing / Delta Sharing</text><text x="1360" y="485" class="s">Sanitized governed table</text><text x="1378" y="505" class="tiny">External OSS client verified</text>
+  <rect x="1318" y="550" width="228" height="95" class="box" fill="#f8fafc" stroke="#94a3b8"/><text x="1362" y="585" class="h3">Analysts / Consumers</text><text x="1356" y="610" class="s">Explore • ask • share • decide</text>
+
+  <path class="arrow" d="M233 390 H252"/><path class="arrow" d="M482 390 H502"/><path class="arrow" d="M747 430 H770"/><path class="arrow" d="M937 470 H954"/><path class="arrow" d="M1099 470 H1116"/><path class="arrow" d="M1248 470 H1292"/>
+  <path class="arrow" d="M233 650 H252"/><path class="arrow" d="M482 565 H502"/>
+
+  <rect x="28" y="714" width="1210" height="150" class="box" fill="#ffffff" stroke="#83c5e9"/>
+  <text x="48" y="748" class="h2">Automation &amp; Deployment</text><text x="48" y="770" class="s">Secretless, guarded GitHub-to-Databricks delivery</text>
+  <g>
+    <rect x="280" y="740" width="160" height="76" class="pill" fill="#fff7f7" stroke="#f87171"/><text x="315" y="771" class="h3">GitHub Repo</text><text x="306" y="794" class="s">Source + config</text>
+    <rect x="466" y="740" width="160" height="76" class="pill" fill="#edf6ff" stroke="#60a5fa"/><text x="493" y="771" class="h3">GitHub Actions CI</text><text x="499" y="794" class="s">Compile + tests</text>
+    <rect x="652" y="740" width="160" height="76" class="pill" fill="#eefbf8" stroke="#2dd4bf"/><text x="691" y="771" class="h3">OIDC Federation</text><text x="687" y="794" class="s">No PAT / secret</text>
+    <rect x="838" y="740" width="180" height="76" class="pill" fill="#fff5f5" stroke="#ef4444"/><text x="863" y="771" class="h3">Asset Bundles CD</text><text x="874" y="794" class="s">Safe deployment</text>
+    <rect x="1044" y="740" width="170" height="76" class="pill" fill="#f8fafc" stroke="#94a3b8"/><text x="1071" y="771" class="h3">Service Principal</text><text x="1090" y="794" class="s">Secretless</text>
+    <path class="arrow" d="M440 778 H466"/><path class="arrow" d="M626 778 H652"/><path class="arrow" d="M812 778 H838"/><path class="arrow" d="M1018 778 H1044"/>
+  </g>
+  <text x="280" y="842" class="tiny">Verified deployment: 0 add / 0 change / 0 delete / 3 unchanged</text>
+
+  <rect x="1262" y="714" width="310" height="150" class="box" fill="#f0fdf4" stroke="#4ade80"/>
+  <text x="1282" y="746" class="h2">Verified Features</text>
+  <text x="1282" y="774" class="s">✓ Delta Lake + CDF   ✓ SCD1 / SCD2</text>
+  <text x="1282" y="796" class="s">✓ Event Hubs realtime ingestion</text>
+  <text x="1282" y="818" class="s">✓ Watermark dedup + quarantine</text>
+  <text x="1282" y="840" class="s">✓ Dashboard + Genie + OpenSharing</text>
+
+  <text x="36" y="888" class="tiny">All data is synthetic. No production or client data used.</text>
+</svg>
