@@ -23,8 +23,10 @@ class PortfolioContractTests(unittest.TestCase):
             ROOT / "docs/deployment.md",
             ROOT / "docs/eventhubs-verification.md",
             ROOT / "docs/opensharing-verification.md",
+            ROOT / "docs/genie-verification.md",
             ROOT / "realtime/01_eventhubs_ingest.py",
             ROOT / "tools/build_eventhubs_pipeline_spec.py",
+            ROOT / "tools/build_genie_space_spec.py",
             ROOT / "tools/send_eventhubs_test.py",
             ROOT / "tools/send_eventhubs_watermark.py",
         ]
@@ -127,6 +129,20 @@ class PortfolioContractTests(unittest.TestCase):
         self.assertIn("temporary token recipient was deleted", text)
         self.assertNotIn("bearerToken", text)
         self.assertNotIn("activation_url", text)
+
+    def test_genie_verification_contract(self):
+        helper = (ROOT / "tools/build_genie_space_spec.py").read_text()
+        doc = (ROOT / "docs/genie-verification.md").read_text().lower()
+
+        self.assertIn("customer_360_metrics", helper)
+        self.assertIn("customer_360_safe", helper)
+        self.assertIn("active subscribers", helper.lower())
+        self.assertIn("monthly recurring revenue", helper.lower())
+
+        self.assertIn("databricks genie", doc)
+        self.assertIn("active subscribers: `2`", doc)
+        self.assertIn("monthly recurring revenue: `1698.0`", doc)
+        self.assertIn("**pass:**", doc)
 
     def test_migration_diagnostics_are_ignored(self):
         text = (ROOT / ".gitignore").read_text()
