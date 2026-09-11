@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml/badge.svg)](https://github.com/Vishnu567456/azure-telecom-customer360/actions/workflows/ci.yml)
 
-An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental batch ingestion, Azure Event Hubs realtime ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, Databricks Declarative Automation Bundles, and automated CI validation.
+An end-to-end Azure Databricks Lakehouse project for a synthetic telecom environment, covering incremental batch ingestion, Azure Event Hubs realtime ingestion, CDC, SCD processing, streaming, data quality, governance, semantic metrics, AI/BI analytics, OpenSharing / Delta Sharing, Databricks Declarative Automation Bundles, and automated CI validation.
 
 > **Data safety:** All customer, subscription, billing, usage, and digital-event data used in this repository is synthetic. No employer, client, or production data is included.
 
@@ -33,6 +33,9 @@ flowchart LR
     N --> O[AI/BI Dashboard]
     P[Unity Catalog Governance] --> K
     P --> O
+    K --> S[Sanitized Sharing Table]
+    S --> OS[OpenSharing / Delta Sharing]
+    OS --> EC[External OSS Delta Sharing Client]
 ```
 
 ## Technology Stack
@@ -50,6 +53,7 @@ flowchart LR
 - Lakeflow Jobs
 - Unity Catalog Metric Views
 - AI/BI Dashboards
+- OpenSharing / Delta Sharing
 - Databricks System Tables
 - Databricks Declarative Automation Bundles
 - GitHub Actions
@@ -212,6 +216,18 @@ The customer email column is tagged as PII and masked through an ABAC policy. Do
 
 instead of the underlying email value.
 
+## OpenSharing / Delta Sharing
+
+The project includes a governance-safe external sharing path. Directly sharing the ABAC-governed Gold Customer 360 materialized view was correctly rejected, so the policy was not bypassed. Instead, a dedicated sanitized Delta table was created:
+
+`vishnu_telecom.sharing.customer_360_safe`
+
+It excludes the PII `email` column and is exposed through the permanent share `telecom_customer360_open_share` as `analytics.customer_360`.
+
+For end-to-end validation, external OpenSharing was enabled temporarily, a one-hour TOKEN recipient was granted `SELECT`, and the official open-source `delta-sharing` Python client consumed the share from outside Databricks. The client discovered exactly one table and successfully read exactly 3 sanitized synthetic rows with the expected non-PII columns.
+
+After verification, the temporary recipient and local `.share` credential were deleted and the metastore was restored to `INTERNAL` sharing. See `docs/opensharing-verification.md`.
+
 ## Semantic Layer
 
 A Unity Catalog Metric View provides reusable business metrics including:
@@ -273,6 +289,7 @@ GitHub Actions performs no-compute CI checks on every relevant push / pull reque
 - safe separation of the inactive production template
 - realtime Event Hubs source/config contract checks
 - secretless Event Hubs helper checks
+- governance-safe OpenSharing verification-document checks
 
 A production-style target template is provided in `config/databricks.prod.example.yml`. It is intentionally not included by the active root bundle, preventing accidental production deployment from this public portfolio repository. See `docs/deployment.md`.
 
@@ -291,6 +308,7 @@ azure-telecom-customer360/
 ├── docs/
 │   ├── deployment.md
 │   ├── eventhubs-verification.md
+│   ├── opensharing-verification.md
 │   └── portfolio-guide.md
 ├── pipeline/
 │   ├── 01_bronze.py
@@ -351,9 +369,9 @@ azure-telecom-customer360/
 | GitHub Actions CI | Implemented and verified |
 | Production-style bundle configuration | Implemented; not deployed by design |
 | Azure Event Hubs live ingestion | Implemented, tested, and Azure-verified |
+| Open Sharing / Delta Sharing | Implemented, tested, and externally verified |
 | Automated GitHub-to-Databricks CD | Not enabled in public portfolio; local bundle deployment verified |
 | Genie | Remaining extension |
-| Open Sharing / Delta Sharing extension | Remaining extension |
 
 ## Design Principles
 
@@ -367,6 +385,7 @@ The project follows production-oriented engineering practices:
 - Event-time correctness for streaming
 - Centralized governance and lineage
 - Passwordless managed-identity access to Azure services
+- Governance-safe external sharing without bypassing PII policies
 - Reusable semantic metrics
 - Infrastructure / deployment configuration under source control
 - Automated no-compute CI validation
