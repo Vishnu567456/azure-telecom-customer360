@@ -22,6 +22,7 @@ class PortfolioContractTests(unittest.TestCase):
             ROOT / "config/eventhubs.pipeline.example.yml",
             ROOT / "docs/deployment.md",
             ROOT / "docs/eventhubs-verification.md",
+            ROOT / "docs/opensharing-verification.md",
             ROOT / "realtime/01_eventhubs_ingest.py",
             ROOT / "tools/build_eventhubs_pipeline_spec.py",
             ROOT / "tools/send_eventhubs_test.py",
@@ -116,6 +117,16 @@ class PortfolioContractTests(unittest.TestCase):
         ]
         for token in forbidden:
             self.assertNotIn(token, text)
+
+    def test_opensharing_verification_is_governance_safe(self):
+        text = (ROOT / "docs/opensharing-verification.md").read_text().lower()
+        self.assertIn("customer_360_safe", text)
+        self.assertIn("email", text)
+        self.assertIn("external opensharing consumer successfully read 3 sanitized", text)
+        self.assertIn("restored from `internal_and_external` to `internal`", text)
+        self.assertIn("temporary token recipient was deleted", text)
+        self.assertNotIn("bearerToken", text)
+        self.assertNotIn("activation_url", text)
 
     def test_migration_diagnostics_are_ignored(self):
         text = (ROOT / ".gitignore").read_text()
