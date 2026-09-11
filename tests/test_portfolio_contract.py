@@ -10,6 +10,7 @@ class PortfolioContractTests(unittest.TestCase):
     def test_required_files_exist(self):
         required = [
             ROOT / "databricks.yml",
+            ROOT / ".github/workflows/cd.yml",
             ROOT / "resources/vishnu_telecom_customer360.pipeline.yml",
             ROOT / "resources/vishnu_telecom_customer360_runner.job.yml",
             ROOT / "resources/telecom_customer_360_revenue_intelligence.dashboard.yml",
@@ -24,6 +25,7 @@ class PortfolioContractTests(unittest.TestCase):
             ROOT / "docs/eventhubs-verification.md",
             ROOT / "docs/opensharing-verification.md",
             ROOT / "docs/genie-verification.md",
+            ROOT / "docs/cd-verification.md",
             ROOT / "realtime/01_eventhubs_ingest.py",
             ROOT / "tools/build_eventhubs_pipeline_spec.py",
             ROOT / "tools/build_genie_space_spec.py",
@@ -75,6 +77,8 @@ class PortfolioContractTests(unittest.TestCase):
         self.assertIn("name: azure-telecom-customer360", text)
         self.assertIn("dev:", text)
         self.assertIn("default: true", text)
+        self.assertIn("root_path:", text)
+        self.assertIn("/Workspace/Users/iaovishnuddubey@gmail.com/.bundle/${bundle.name}/${bundle.target}", text)
         self.assertNotIn("mode: development", text)
         self.assertNotIn("prod:", text)
 
@@ -142,6 +146,23 @@ class PortfolioContractTests(unittest.TestCase):
         self.assertIn("databricks genie", doc)
         self.assertIn("active subscribers: `2`", doc)
         self.assertIn("monthly recurring revenue: `1698.0`", doc)
+        self.assertIn("**pass:**", doc)
+
+    def test_cd_workflow_is_secretless_and_guarded(self):
+        workflow = (ROOT / ".github/workflows/cd.yml").read_text()
+        doc = (ROOT / "docs/cd-verification.md").read_text().lower()
+
+        self.assertIn("workflow_dispatch:", workflow)
+        self.assertIn("id-token: write", workflow)
+        self.assertIn("DATABRICKS_AUTH_TYPE: github-oidc", workflow)
+        self.assertIn("environment: databricks-dev", workflow)
+        self.assertIn("Safety guard blocked deployment", workflow)
+        self.assertIn("databricks bundle deploy -t dev", workflow)
+        self.assertNotIn("DATABRICKS_TOKEN", workflow)
+        self.assertNotIn("client_secret", workflow.lower())
+
+        self.assertIn("0 created, 0 changed, 0 deleted, 3 unchanged", doc)
+        self.assertIn("post-deployment plan", doc)
         self.assertIn("**pass:**", doc)
 
     def test_migration_diagnostics_are_ignored(self):
